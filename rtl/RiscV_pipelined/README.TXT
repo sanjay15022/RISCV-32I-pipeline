@@ -1,0 +1,1 @@
+iverilog -o output alu.v alu_src.v branch_checker.v ctrl_unit.v data_mem.v imm_sel.v instr_reg.v instr_splitter.v pc.v pc_nxt_mux.v reg_wb.v register.v main_pipe.v if_id_reg.v id_exe_reg.v exe_mem_reg.v mem_wb_reg.v forwarding.v forwarding_mux.v tst_pipe.v

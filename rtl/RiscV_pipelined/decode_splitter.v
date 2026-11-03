@@ -1,0 +1,2 @@
+mdoule decoder(
+				input wire);
