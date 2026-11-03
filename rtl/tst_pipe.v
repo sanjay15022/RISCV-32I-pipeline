@@ -1,60 +1,79 @@
 `timescale 1ns/1ps
-// Merge sort test for the single-cycle CPU (top module: main).
-// No changes to your CPU files needed.
-module tb_merge_sort_sc;
-    reg clk;
-    integer i, errors, cycles;
-    reg signed [31:0] expected [0:7];
-    reg signed [31:0] got;
 
-    main uut (.clk(clk));
+module tst_pipe;
 
-    initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk;
-    end
+reg clk;
 
-    initial begin
-        $dumpfile("merge_sort_sc.vcd");
-        $dumpvars(0, tb_merge_sort_sc);
+integer errors;
 
-        expected[0] = -9;  expected[1] = -5; expected[2] = 0;  expected[3] = 3;
-        expected[4] = 4;   expected[5] = 7;  expected[6] = 12; expected[7] = 12;
+main_pipe uut (
+    .clk(clk)
+);
 
-        // instr_reg loads program.hex at time 0; replace it with the merge sort
-        // program (one byte per line, little-endian) before the first clock edge.
-        #1;
-        for (i = 0; i < 1024; i = i + 1) uut.instr_reg1.instr_reg[i] = 8'h00;
-        $readmemh("merge_sort_single_bytes.hex", uut.instr_reg1.instr_reg, 0, 219);
+always #5 clk = ~clk;
 
-        $display("======== MERGE SORT (single-cycle) ========");
+initial begin
+    clk = 0;
+    errors = 0;
 
-        // program writes 1 to byte address 124 when finished
-        cycles = 0;
-        while (uut.dmem1.dmemory[124] !== 8'd1 && cycles < 5000) begin
-            @(posedge clk);
-            cycles = cycles + 1;
-        end
-        #1;
+    $display("==================================");
+    $display("     R-TYPE FORWARDING TEST");
+    $display("==================================");
 
-        if (cycles >= 5000) begin
-            $display("FAIL: timeout, program never finished (PC = %h)", uut.pc);
-            $finish;
-        end
+    // Allow the pipeline to execute all instructions
+    repeat(12) @(posedge clk);
+    #1;
 
-        errors = 0;
-        for (i = 0; i < 8; i = i + 1) begin
-            got = {uut.dmem1.dmemory[4*i+3], uut.dmem1.dmemory[4*i+2],
-                   uut.dmem1.dmemory[4*i+1], uut.dmem1.dmemory[4*i]};
-            $display("A[%0d] = %0d", i, got);
-            if (got !== expected[i]) begin
-                $display("  MISMATCH: expected %0d", expected[i]);
-                errors = errors + 1;
-            end
-        end
+    $display("\nFINAL REGISTER VALUES");
 
-        if (errors == 0) $display("PASS: merge sort correct after %0d cycles", cycles);
-        else             $display("FAIL: %0d mismatches", errors);
-        $finish;
-    end
+    $display("x1 = %h", uut.register1.register[1]);
+    $display("x2 = %h", uut.register1.register[2]);
+    $display("x3 = %h", uut.register1.register[3]);
+    $display("x4 = %h", uut.register1.register[4]);
+    $display("x5 = %h", uut.register1.register[5]);
+    $display("x6 = %h", uut.register1.register[6]);
+    $display("x7 = %h", uut.register1.register[7]);
+
+    $display("\nRESULT CHECK");
+
+    if (uut.register1.register[1] !== 32'd10)
+        begin $display("FAIL: x1"); errors = errors + 1; end
+    else $display("PASS: x1");
+
+    if (uut.register1.register[2] !== 32'd20)
+        begin $display("FAIL: x2"); errors = errors + 1; end
+    else $display("PASS: x2");
+
+    if (uut.register1.register[3] !== 32'd30)
+        begin $display("FAIL: x3"); errors = errors + 1; end
+    else $display("PASS: x3");
+
+    if (uut.register1.register[4] !== 32'd20)
+        begin $display("FAIL: x4"); errors = errors + 1; end
+    else $display("PASS: x4");
+
+    if (uut.register1.register[5] !== 32'd20)
+        begin $display("FAIL: x5"); errors = errors + 1; end
+    else $display("PASS: x5");
+
+    if (uut.register1.register[6] !== 32'd30)
+        begin $display("FAIL: x6"); errors = errors + 1; end
+    else $display("PASS: x6");
+
+    if (uut.register1.register[7] !== 32'd10)
+        begin $display("FAIL: x7"); errors = errors + 1; end
+    else $display("PASS: x7");
+
+    $display("\n==================================");
+
+    if (errors == 0)
+        $display("R-TYPE FORWARDING: PASS");
+    else
+        $display("R-TYPE FORWARDING: FAIL (%0d errors)", errors);
+
+    $display("==================================");
+
+    $finish;
+end
+
 endmodule
