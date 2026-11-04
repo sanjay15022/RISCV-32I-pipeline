@@ -25,6 +25,7 @@ wire alu_src1,alu_src2,reg_read,reg_write,dmem_read,dmem_write,branch,jalr,jump;
 wire [2:0] imm_sel;
 wire [1:0] reg_wb;
 wire [3:0] alu_out_flow;
+wire f1_enb,f2_enb;
 
 //register
 
@@ -143,7 +144,9 @@ ctrl_unit ctrl_unit1(.opcode(opcode) ,
 					 .dmem_write(dmem_write) ,
 					 .branch(branch) ,
 					 .jalr(jalr) ,
-					 .jump(jump));
+					 .jump(jump) ,
+					 .f1_enb(f1_enb) ,
+					 .f2_enb(f2_enb));
 
 register register1(.clk(clk) ,
 				   .reg_read(reg_read) ,
@@ -191,6 +194,8 @@ forward_mux forward_mux1(.fA1(fA1) ,
 						 .fB2(fB2) ,
 						 .fC1(fC1) ,
 						 .fC2(fC2) ,
+						 .f1_enb(f1_enb) ,
+						 .f2_enb(f2_enb) ,
 				   		 .alu_ip1(alu_ip1) ,
 				  	     .alu_ip2(alu_ip2) ,
 				  	     .reg_write_idexe(reg_write_idexe) ,
@@ -198,7 +203,6 @@ forward_mux forward_mux1(.fA1(fA1) ,
 				  	     .alu_out(alu_out) ,
 				  	     .w_rd(w_rd) ,
 				  	     .alu_out_exemem(alu_out_exemem) ,
-				  	     .alu_out_memwb(alu_out_memwb) ,
 				  	     .reg_write_memwb(reg_write_memwb),
 
 				  	     .alu_ip1_f(alu_ip1_f) ,

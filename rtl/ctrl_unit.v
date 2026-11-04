@@ -14,7 +14,9 @@ module ctrl_unit (
 					output reg dmem_write,
 					output reg branch,
 					output reg jalr,
-					output reg jump
+					output reg jump,
+					output reg f1_enb,
+					output reg f2_enb
 					 );
 
 always @(*) begin
@@ -31,6 +33,8 @@ always @(*) begin
 		branch = 1'b0;
 		jalr = 1'b0;
 		jump = 1'b0;
+		f1_enb = 1'b0;
+		f2_enb = 1'b0;
 
 	case(opcode)
 			7'b0110011: begin /// r type
@@ -41,6 +45,8 @@ always @(*) begin
 						alu_out_flow = 4'b0000;
 						reg_write = 1'b1;
 						reg_read = 1'b1;
+						f1_enb = 1'b1;
+						f2_enb = 1'b1;
 
 				case(funct3)
 					3'b000: begin
@@ -81,6 +87,8 @@ always @(*) begin
 						reg_write = 1'b1;
 						reg_read = 1'b1;
 						imm_sel = 3'b000;
+						f1_enb = 1'b1;
+						f2_enb = 1'b0;
 
 				case(funct3)
 					3'b000: begin
@@ -123,6 +131,8 @@ always @(*) begin
 					reg_write = 1'b1;
 					alu_out_flow = 3'b010;
 					imm_sel = 3'b000;
+					f1_enb = 1'b1;
+					f2_enb = 1'b0;
 
 			end
 
@@ -137,6 +147,9 @@ always @(*) begin
 				reg_read = 1'b1; 
 				reg_wb = 2'b10;
 				jalr = 1'b1;
+				f1_enb = 1'b1;
+				f2_enb = 1'b0;
+
 				end
 			end
 
@@ -152,6 +165,9 @@ always @(*) begin
 				reg_write = 1'b0;
 				reg_wb = 2'b00;
 				imm_sel = 3'b001;
+				f1_enb = 1'b1;
+				f2_enb = 1'b1;
+
 			end
 
 			7'b1100011: begin ///branch
@@ -164,6 +180,9 @@ always @(*) begin
 				reg_read = 1'b1;
 				branch = 1'b1;
 				jalr = 1'b0;
+				f1_enb = 1'b1;
+				f2_enb = 1'b1;
+
 			end
 
 			7'b1101111: begin /// j type
@@ -172,17 +191,22 @@ always @(*) begin
 				alu_src2 = 1'b1;
 				alu_out_flow = 3'b001;
 				jump = 1'b1;
-				reg_read = 1'b1;
+				reg_read = 1'b0;
 				reg_write = 1'b1;
 				reg_wb = 2'b10;
 				imm_sel = 3'b100;
 				jalr = 1'b0;
+				f1_enb = 1'b0;
+				f2_enb = 1'b0;
+
 			end
 
 			7'b0110111: begin ///u type LUI
 				
 				reg_wb = 2'b11;
 				reg_write = 1'b1;
+				f1_enb = 1'b0;
+				f2_enb = 1'b0;
 
 			end
 
@@ -195,6 +219,9 @@ always @(*) begin
 				alu_out_flow = 3'b000;
 				alu_ctrl = 4'b0000;
 				reg_wb = 2'b00;
+				f1_enb = 1'b0;
+				f2_enb = 1'b0;
+
 			end
 
 			7'b0001111: begin ///FENCE
