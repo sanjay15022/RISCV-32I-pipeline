@@ -262,8 +262,8 @@ alu alu1(.alu_ip1(alu_ip1_idexe) ,
 		 .neg_flag(neg_flag) ,
 		 .zero_flag(zero_flag) );
 
-branch_checker checker1(.r_rs1(r_rs1_idexe) ,
-					    .r_rs2(r_rs2_idexe) ,
+branch_checker checker1(.r_rs1(alu_ip1_f) ,
+					    .r_rs2(alu_ip2_f) ,
 					    .funct3(funct3_idexe) ,
 					    .branch_ok(branch_ok) ); 
 
