@@ -59,11 +59,15 @@ wire neg_flag,zero_flag;
 
 //branch checker
 
-wire branch_ok;
+wire branch_ok; 
+
+// reg_wb1
+
+wire [31:0] w_rd1;
 
 //exe mem register 
 
-wire [31:0] alu_out_exemem,imm_u_exemem,pc_plus4_exemem,r_rs2_exemem;
+wire [31:0] alu_out_exemem,imm_u_exemem,pc_plus4_exemem,r_rs2_exemem,w_rd_exemem;
 wire [1:0] reg_wb_exemem;
 wire [2:0] funct3_exemem;
 wire [4:0] rd_exemem;
@@ -81,14 +85,14 @@ wire offset_flag_rd,invalid_rdmem_flag,dmem_out_bound_flag_rd,dmem_out_bound_fla
 
 // mem wb register 
 
-wire [31:0] alu_out_memwb,imm_u_memwb,r_dmem_memwb,pc_plus4_memwb;
+wire [31:0] alu_out_memwb,imm_u_memwb,r_dmem_memwb,pc_plus4_memwb,w_rd;
 wire [1:0] reg_wb_memwb;
 wire [4:0] rd_memwb;
 wire reg_write_memwb;
 
-//reg wb
+//reg wb2
 
-wire [31:0] w_rd;
+wire [31:0] w_rd2;
 
 
 pc pc1(.clk(clk) ,
@@ -200,9 +204,9 @@ forward_mux forward_mux1(.fA1(fA1) ,
 				  	     .alu_ip2(alu_ip2) ,
 				  	     .reg_write_idexe(reg_write_idexe) ,
 				  	     .reg_write_exemem(reg_write_exemem) ,
-				  	     .alu_out(alu_out) ,
-				  	     .w_rd(w_rd) ,
-				  	     .alu_out_exemem(alu_out_exemem) ,
+				  	     .w_rd1(w_rd1) ,
+				  	     .w_rd(w_rd) , /// memwb
+				  	     .w_rd2(w_rd2) ,
 				  	     .reg_write_memwb(reg_write_memwb),
 
 				  	     .alu_ip1_f(alu_ip1_f) ,
@@ -225,7 +229,7 @@ id_exe_reg id_exe_reg1(.clk(clk) ,
 					   .branch(branch) ,
 					   .jalr(jalr) ,
 					   .jump(jump) ,
-					   .pc() ,
+					   .pc(pc_ifid) ,
 					   .pc_plus4(pc_plus4_ifid) ,
 					   .imm_u(imm_u) ,
 					   .r_rs1(r_rs1) ,
@@ -263,6 +267,12 @@ branch_checker checker1(.r_rs1(r_rs1_idexe) ,
 					    .funct3(funct3_idexe) ,
 					    .branch_ok(branch_ok) ); 
 
+reg_wb1 reg_wb1_1(.imm_u(imm_u_idexe) ,
+				  .pc_plus4(pc_plus4_idexe) ,
+				  .alu_out(alu_out) ,
+				  .reg_wb(reg_wb_idexe) ,
+				  .w_rd1(w_rd1) );
+
 exe_mem_reg exe_mem_reg1(.clk(clk) ,
 						 .alu_out(alu_out) ,
 						 .branch_ok(branch_ok) ,
@@ -278,6 +288,7 @@ exe_mem_reg exe_mem_reg1(.clk(clk) ,
 						 .funct3(funct3_idexe),
 						 .pc_plus4(pc_plus4_idexe), 
 						 .rd(rd_idexe),
+						 .w_rd(w_rd1),
 
 						 .alu_out_reg(alu_out_exemem) ,
 						 .branch_ok_reg(branch_ok_exemem) ,
@@ -292,7 +303,8 @@ exe_mem_reg exe_mem_reg1(.clk(clk) ,
 						 .r_rs2_reg(r_rs2_exemem) ,
 						 .funct3_reg(funct3_exemem) ,
 						 .pc_plus4_reg(pc_plus4_exemem) ,
-						 .rd_reg(rd_exemem));
+						 .rd_reg(rd_exemem) ,
+						 .w_rd_reg(w_rd_exemem));
 
 pc_nxt_mux pc_nxt_mux1(.alu_out(alu_out) ,
 					   .jalr(jalr_idexe) ,
@@ -311,6 +323,11 @@ data_mem dmem1(.clk(clk) ,
 			   .dmem_out_bound_flag_rd(dmem_out_bound_flag_rd) ,
 			   .dmem_out_bound_flag_wr(dmem_out_bound_flag_wr) );
 
+reg_wb2 reg_wb2_1(.w_rd_exemem(w_rd_exemem) ,
+				  .r_dmem(r_dmem) ,
+				  .reg_wb(reg_wb_exemem) ,
+				  .w_rd2(w_rd2) );
+
 mem_wb_reg mem_wb_reg1(.clk(clk) ,
 					   .alu_out(alu_out_exemem) ,
 					   .imm_u(imm_u_exemem) ,
@@ -319,6 +336,7 @@ mem_wb_reg mem_wb_reg1(.clk(clk) ,
 					   .reg_wb(reg_wb_exemem) ,
 					   .reg_write(reg_write_exemem) ,
 					   .rd(rd_exemem),
+					   .w_rd(w_rd2),
 
 					   .alu_out_reg(alu_out_memwb) ,
 					   .imm_u_reg(imm_u_memwb) ,
@@ -326,14 +344,15 @@ mem_wb_reg mem_wb_reg1(.clk(clk) ,
 					   .pc_plus4_reg(pc_plus4_memwb) ,
 					   .reg_wb_reg(reg_wb_memwb) ,
 					   .reg_write_reg(reg_write_memwb) ,
-					   .rd_reg(rd_memwb));
+					   .rd_reg(rd_memwb) ,
+					   .w_rd_reg(w_rd));
 
-reg_wb reg_wb1(.alu_out(alu_out_memwb) ,
+/*reg_wb reg_wb1(.alu_out(alu_out_memwb) ,
 			   .r_dmem(r_dmem_memwb) ,
 			   .pc_plus4(pc_plus4_memwb) ,
 			   .reg_wb(reg_wb_memwb) ,
 			   .imm_u(imm_u_memwb) ,
-			   .w_rd(w_rd) );
+			   .w_rd(w_rd) ); */
 
 
 

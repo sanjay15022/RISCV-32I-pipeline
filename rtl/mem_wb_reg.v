@@ -6,7 +6,8 @@ module mem_wb_reg(
 					input wire [31:0] pc_plus4,
 					input wire [1:0] reg_wb,
 					input wire reg_write,
-					input wire [4:0] rd, 
+					input wire [4:0] rd,
+					input wire [31:0]  w_rd,
 
 					output reg [31:0] alu_out_reg,
 					output reg [31:0] imm_u_reg,
@@ -14,7 +15,8 @@ module mem_wb_reg(
 					output reg [31:0] pc_plus4_reg,
 					output reg [1:0] reg_wb_reg,
 					output reg reg_write_reg,
-					output reg [4:0] rd_reg);
+					output reg [4:0] rd_reg,
+					output reg [31:0] w_rd_reg);
 
 initial begin
 	
@@ -36,6 +38,7 @@ always @(posedge clk) begin
 				reg_wb_reg <= reg_wb;
 				reg_write_reg <= reg_write;
 				rd_reg <= rd;
+				w_rd_reg <= w_rd;
 end 	
 
 endmodule 

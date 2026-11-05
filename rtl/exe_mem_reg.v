@@ -14,6 +14,7 @@ module exe_mem_reg(
 				input wire [2:0] funct3,
 				input wire [31:0] pc_plus4,	
 				input wire [4:0] rd,
+				input wire [31:0] w_rd,
 				
 				output reg [31:0] alu_out_reg,
 				output reg branch_ok_reg,
@@ -28,7 +29,8 @@ module exe_mem_reg(
 				output reg [31:0] r_rs2_reg,
 				output reg [2:0] funct3_reg, 
 				output reg [31:0] pc_plus4_reg,
-				output reg [4:0] rd_reg );
+				output reg [4:0] rd_reg, 
+				output reg [31:0] w_rd_reg );
 
 initial begin
 	
@@ -46,6 +48,7 @@ initial begin
 				funct3_reg  = 3'b0; 
 				pc_plus4_reg  = 32'b0;
 				rd_reg  = 5'b0;	
+				w_rd_reg = 32'b0;
 end
 
 always@(posedge clk) begin
@@ -64,6 +67,7 @@ always@(posedge clk) begin
 			funct3_reg <= funct3;
 			pc_plus4_reg  <= pc_plus4;
 			rd_reg <= rd;
+			w_rd_reg <= w_rd;
 end
 
 endmodule
