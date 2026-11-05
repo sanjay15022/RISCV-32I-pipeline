@@ -42,6 +42,7 @@ wire [31:0] alu_ip1,alu_ip2;
 // forwarding 
 wire fA1,fA2,fB1,fB2,fC1,fC2;
 wire [31:0] alu_ip1_f,alu_ip2_f;
+wire [31:0] r_rs1_f,r_rs2_f;
 
 // id exe register 
 
@@ -170,8 +171,26 @@ imm_sel imm_sel1(.imm_s(imm_s) ,
 				 .imm_sel(imm_sel) ,
 				 .imm(imm));
 
-alu_src alu_src_1 (.r_rs1(r_rs1) ,
-				   .r_rs2(r_rs2) ,
+forwarding forward1(.rs1(rs1) ,
+					.rs2(rs2) ,
+					.r_rs1(r_rs1) ,
+					.r_rs2(r_rs2) ,
+					.w_rd1(w_rd1) ,
+					.w_rd2(w_rd2) ,
+					.w_rd(w_rd) ,
+					.reg_write_idexe(reg_write_idexe) ,
+					.reg_write_exemem(reg_write_exemem) ,
+					.reg_write_memwb(reg_write_memwb),
+					.rd_idexe(rd_idexe) ,
+					.rd_exemem(rd_exemem) ,
+					.rd_memwb(rd_memwb) ,
+
+					.r_rs1_f(r_rs1_f) ,
+					.r_rs2_f(r_rs2_f));
+
+
+alu_src alu_src_1 (.r_rs1_f(r_rs1_f) ,
+				   .r_rs2_f(r_rs2_f) ,
 				   .imm(imm) ,
 				   .pc(pc_ifid) ,
 				   .alu_src1(alu_src1) ,
@@ -179,20 +198,8 @@ alu_src alu_src_1 (.r_rs1(r_rs1) ,
 				   .alu_ip1(alu_ip1) ,
 				   .alu_ip2(alu_ip2) );
 
-forwarding forward1(.rs1(rs1) ,
-					.rs2(rs2) ,
-					.rd_idexe(rd_idexe) ,
-					.rd_exemem(rd_exemem) ,
-					.rd_memwb(rd_memwb) ,
 
-					.fA1(fA1) ,
-					.fB1(fB1) ,
-					.fA2(fA2) ,
-					.fB2(fB2) ,
-					.fC1(fC1) ,
-					.fC2(fC2));
-
-forward_mux forward_mux1(.fA1(fA1) ,
+/*forward_mux forward_mux1(.fA1(fA1) ,
 						 .fB1(fB1) ,
 						 .fA2(fA2) ,
 						 .fB2(fB2) ,
@@ -210,7 +217,7 @@ forward_mux forward_mux1(.fA1(fA1) ,
 				  	     .reg_write_memwb(reg_write_memwb),
 
 				  	     .alu_ip1_f(alu_ip1_f) ,
-				  	     .alu_ip2_f(alu_ip2_f) );
+				  	     .alu_ip2_f(alu_ip2_f) ); */
 
 id_exe_reg id_exe_reg1(.clk(clk) ,
 					   .branch_ok(branch_ok) ,
@@ -220,8 +227,8 @@ id_exe_reg id_exe_reg1(.clk(clk) ,
 					   .instr(instr_ifid) ,
 					   .funct3(funct3) ,
 					   .alu_ctrl(alu_ctrl) ,
-					   .alu_ip1(alu_ip1_f) ,
-					   .alu_ip2(alu_ip2_f) ,
+					   .alu_ip1(alu_ip1) ,
+					   .alu_ip2(alu_ip2) ,
 					   .reg_wb(reg_wb) ,
 					   .reg_write(reg_write) ,
 					   .dmem_read(dmem_read) ,
@@ -232,8 +239,8 @@ id_exe_reg id_exe_reg1(.clk(clk) ,
 					   .pc(pc_ifid) ,
 					   .pc_plus4(pc_plus4_ifid) ,
 					   .imm_u(imm_u) ,
-					   .r_rs1(r_rs1) ,
-					   .r_rs2(r_rs2) ,
+					   .r_rs1(r_rs1_f) ,
+					   .r_rs2(r_rs2_f) ,
 					   .rd(rd) ,
 					   
 					   .instr_reg(instr_idexe) ,
@@ -262,8 +269,8 @@ alu alu1(.alu_ip1(alu_ip1_idexe) ,
 		 .neg_flag(neg_flag) ,
 		 .zero_flag(zero_flag) );
 
-branch_checker checker1(.r_rs1(alu_ip1_f) ,
-					    .r_rs2(alu_ip2_f) ,
+branch_checker checker1(.r_rs1(r_rs1_idexe) ,
+					    .r_rs2(r_rs2_idexe) ,
 					    .funct3(funct3_idexe) ,
 					    .branch_ok(branch_ok) ); 
 
