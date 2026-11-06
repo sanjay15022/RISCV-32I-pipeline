@@ -7,6 +7,7 @@ module if_id_reg(
 				input wire branch_future,
 				input wire jump_future,
 				input wire jalr_future,
+				input wire stall,
 				output reg [31:0] pc_reg,
 				output reg [31:0] pc_plus4_reg,				 
 				output reg [31:0] instr_reg );
@@ -24,6 +25,12 @@ always @(posedge clk) begin
 		instr_reg <= 32'b0;
 		pc_reg <= 32'b0;
 		pc_plus4_reg <= 32'b0;
+	end
+
+	else if (stall ==1'b1) begin
+		instr_reg <= instr_reg;
+		pc_reg <= pc_reg;
+		pc_plus4_reg <= pc_plus4_reg;
 	end
 	else begin
 			

@@ -16,7 +16,8 @@ module ctrl_unit (
 					output reg jalr,
 					output reg jump,
 					output reg f1_enb,
-					output reg f2_enb
+					output reg f2_enb,
+					output reg reg_read2
 					 );
 
 always @(*) begin
@@ -35,6 +36,7 @@ always @(*) begin
 		jump = 1'b0;
 		f1_enb = 1'b0;
 		f2_enb = 1'b0;
+		reg_read2 = 1'b0;
 
 	case(opcode)
 			7'b0110011: begin /// r type
@@ -47,6 +49,7 @@ always @(*) begin
 						reg_read = 1'b1;
 						f1_enb = 1'b1;
 						f2_enb = 1'b1;
+						reg_read2 = 1'b1;
 
 				case(funct3)
 					3'b000: begin
@@ -89,6 +92,7 @@ always @(*) begin
 						imm_sel = 3'b000;
 						f1_enb = 1'b1;
 						f2_enb = 1'b0;
+						reg_read2 = 1'b0;
 
 				case(funct3)
 					3'b000: begin
@@ -149,6 +153,7 @@ always @(*) begin
 				jalr = 1'b1;
 				f1_enb = 1'b1;
 				f2_enb = 1'b0;
+				reg_read2 = 1'b0;
 
 				end
 			end
@@ -167,6 +172,7 @@ always @(*) begin
 				imm_sel = 3'b001;
 				f1_enb = 1'b1;
 				f2_enb = 1'b1;
+				reg_read2 = 1'b1;
 
 			end
 
@@ -182,6 +188,7 @@ always @(*) begin
 				jalr = 1'b0;
 				f1_enb = 1'b1;
 				f2_enb = 1'b1;
+				reg_read2 = 1'b1;
 
 			end
 
@@ -198,6 +205,7 @@ always @(*) begin
 				jalr = 1'b0;
 				f1_enb = 1'b0;
 				f2_enb = 1'b0;
+				reg_read2 = 1'b0;
 
 			end
 
@@ -207,6 +215,7 @@ always @(*) begin
 				reg_write = 1'b1;
 				f1_enb = 1'b0;
 				f2_enb = 1'b0;
+				reg_read2 = 1'b0;
 
 			end
 
@@ -221,6 +230,7 @@ always @(*) begin
 				reg_wb = 2'b00;
 				f1_enb = 1'b0;
 				f2_enb = 1'b0;
+				reg_read2 = 1'b0;
 
 			end
 

@@ -25,6 +25,7 @@ module id_exe_reg(
 					input wire [31:0] r_rs1,
 					input wire [31:0] r_rs2,
 					input wire [4:0] rd ,
+					input wire stall,
 
 					output reg [31:0] instr_reg, 
 					output reg [2:0] funct3_reg,
@@ -71,7 +72,7 @@ end
 
 always @(posedge clk) begin
 
-	if((branch_ok==1'b1 & branch_future==1'b1) | jump_future == 1'b1 | jalr_future ==1'b1) begin
+	if((branch_ok==1'b1 & branch_future==1'b1) | jump_future == 1'b1 | jalr_future ==1'b1 | stall ==1'b1) begin
 		instr_reg <= 32'b0; 
 		funct3_reg <= 3'b0;
 		alu_ctrl_reg <= 4'b0;

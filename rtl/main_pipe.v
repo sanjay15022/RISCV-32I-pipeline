@@ -26,6 +26,7 @@ wire [2:0] imm_sel;
 wire [1:0] reg_wb;
 wire [3:0] alu_out_flow;
 wire f1_enb,f2_enb;
+wire reg_read2;
 
 //register
 
@@ -43,7 +44,7 @@ wire [31:0] alu_ip1,alu_ip2;
 wire fA1,fA2,fB1,fB2,fC1,fC2;
 wire [31:0] alu_ip1_f,alu_ip2_f;
 wire [31:0] r_rs1_f,r_rs2_f;
-
+wire stall ;
 // id exe register 
 
 wire [31:0] instr_idexe,alu_ip1_idexe,alu_ip2_idexe,pc_idexe,pc_plus4_idexe,imm_u_idexe,r_rs1_idexe,r_rs2_idexe;
@@ -103,7 +104,8 @@ pc pc1(.clk(clk) ,
 	   .jalr_future(jalr_idexe) ,
 	   .pc(pc) ,
 	   .pc_plus4(pc_plus4) ,
-	   .pc_clc(pc_clc) );
+	   .pc_clc(pc_clc) ,
+	   .stall(stall) );
 
 instr_reg instr_reg1(.clk(clk) ,
 					 .instr_add(pc[9:0]) ,
@@ -117,6 +119,7 @@ if_id_reg if_id_reg1 (.clk(clk) ,
 					  .branch_future(branch_idexe) ,
 					  .jump_future(jump_idexe) ,
 					  .jalr_future(jalr_idexe) ,
+					  .stall(stall) ,
 
 					  .pc_reg(pc_ifid),
 					  .pc_plus4_reg(pc_plus4_ifid) ,
@@ -151,7 +154,8 @@ ctrl_unit ctrl_unit1(.opcode(opcode) ,
 					 .jalr(jalr) ,
 					 .jump(jump) ,
 					 .f1_enb(f1_enb) ,
-					 .f2_enb(f2_enb));
+					 .f2_enb(f2_enb) ,
+					 .reg_read2(reg_read2) );
 
 register register1(.clk(clk) ,
 				   .reg_read(reg_read) ,
@@ -184,7 +188,11 @@ forwarding forward1(.rs1(rs1) ,
 					.rd_idexe(rd_idexe) ,
 					.rd_exemem(rd_exemem) ,
 					.rd_memwb(rd_memwb) ,
+					.dmem_read_idexe(dmem_read_idexe) ,
+					.reg_read(reg_read) ,
+					.reg_read2(reg_read2) ,
 
+					.stall(stall) ,
 					.r_rs1_f(r_rs1_f) ,
 					.r_rs2_f(r_rs2_f));
 
@@ -242,6 +250,7 @@ id_exe_reg id_exe_reg1(.clk(clk) ,
 					   .r_rs1(r_rs1_f) ,
 					   .r_rs2(r_rs2_f) ,
 					   .rd(rd) ,
+					   .stall(stall) ,
 					   
 					   .instr_reg(instr_idexe) ,
 					   .funct3_reg(funct3_idexe) ,
